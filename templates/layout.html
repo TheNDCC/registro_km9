@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+    <style>
+        .grid {
+            grid-template-columns: repeat(auto-fit,minmax(0%,1fr)) !important;
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    {% block content %}
+    {% endblock %}
+    <script src="//unpkg.com/alpinejs" defer></script>
+</body>
+</html>
