@@ -1,7 +1,22 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <form method="POST" x-data="{ subsidiary: '{{subsidiaries.first}}' }">
+    <form method="POST" x-data="{ subsidiary: '{{subsidiaries.first}}',
+    {% for product in products %}
+        product{{product.id}}:0,
+    {% endfor %}
+    {% for item in expenses_quantity %}
+        expense{{item}}:0,
+    {% endfor %}
+    {% for item in credits_quantity %}
+        credit{{item}}:0,
+    {% endfor %}
+    {% for item in payments_quantity %}
+        payment{{item}}:0,
+    {% endfor %}
+    total_product:0,total_expense:0, total_credit:0, total_payment:0,
+    cash:0, card:0
+}">
         {% csrf_token %}
         <label for="date">Date:</label>
         <input type="date" id="date" name="date" value="{{today|date:"Y-m-d"}}" required>
@@ -24,13 +39,13 @@
             <p>Monto</p>
         </div>
         {% for product in products %}
-            <div x-data="{price:{{product.price}},quantity:0}" class="grid" x-show="subsidiary == '{{product.subsidiary}}'" >
+            <div x-data="{price:{{product.price}},quantity:0}" class="grid" x-show="subsidiary == '{{product.category.subsidiary}}'" >
                 <p>
                     {{ product.name }} - {{ product.category.name }}
                 </p>
                 <input type="number" name="quantity-{{product.id}}" placeholder="Cantidad" x-model="quantity" >
                 <input type="number" step="0.01" name="price-{{product.id}}" placeholder="Precio" x-model="price" value="{{product.price}}">
-                <input type="number" step="0.01" name="amount-{{product.id}}" placeholder="Monto" :value="price * quantity" readonly>
+                <input type="number" step="0.01" name="amount-{{product.id}}" placeholder="Monto" :value="product{{product.id}} =price * quantity; product{{product.id}}">
             </div>
         {% endfor %}
 
@@ -38,16 +53,16 @@
 
         {% for item in expenses_quantity %}
             <div class="grid">
-                <input type="text" name="description-{{item}}-expenses" placeholder="Descripción" required>
-                <input type="number" step="0.01" name="amount-{{item}}-expenses" placeholder="Monto" required>
+                <input type="text" name="description-{{item}}-expenses" placeholder="Descripción">
+                <input type="number" step="0.01" name="amount-{{item}}-expenses" placeholder="Monto" x-model="expense{{item}}">
             </div>
         {% endfor %}
         <h1>Créditos</h1>
 
         {% for item in credits_quantity %}
             <div class="grid">
-                <input type="text" name="description-{{item}}-credits" placeholder="Descripción" required>
-                <input type="number" step="0.01" name="amount-{{item}}-credits" placeholder="Monto" required>
+                <input type="text" name="description-{{item}}-credits" placeholder="Descripción">
+                <input type="number" step="0.01" name="amount-{{item}}-credits" placeholder="Monto" x-model="credit{{item}}">
             </div>
         {% endfor %}
 
@@ -55,14 +70,38 @@
 
         {% for item in payments_quantity %}
             <div class="grid">
-                <input type="text" name="description-{{item}}-payments" placeholder="Descripción" required>
-                <input type="number" step="0.01" name="amount-{{item}}-payments" placeholder="Monto" required>
+                <input type="text" name="description-{{item}}-payments" placeholder="Descripción">
+                <input type="number" step="0.01" name="amount-{{item}}-payments" placeholder="Monto" x-model="payment{{item}}">
             </div>
         {% endfor %}
         <div class="grid">
             <h1>Formas de Pago</h1>
-            <input type="number" name="cash" placeholder="Efectivo" required>
-            <input type="number" name="card" placeholder="Tarjeta" required>
+            <input type="number" name="cash" placeholder="Efectivo" x-model="cash" required>
+            <input type="number" name="card" placeholder="Tarjeta" x-model="card" required>
+        </div>
+
+        <h2>Resumen de Totales</h2>
+        <div >
+            <div class="grid">  
+                <p>Total Ventas:</p>
+                <p x-text="total_product={% for product in products %} product{{product.id}} + {% endfor %} 0;total_product"></p>
+            </div>
+            <div class="grid">
+                <p>Total Gastos:</p>
+                <p x-text="total_expense={% for item in expenses_quantity %} parseInt(expense{{item}}) + {% endfor %} 0;total_expense"></p>
+            </div>
+            <div class="grid">
+                <p>Total Créditos:</p>
+                <p x-text="total_credit={% for item in credits_quantity %} parseInt(credit{{item}}) + {% endfor %} 0;total_credit"></p>
+            </div>
+            <div class="grid">
+                <p>Total Pagos:</p>
+                <p x-text="total_payment={% for item in payments_quantity %} parseInt(payment{{item}}) + {% endfor %} 0; total_payment"></p>
+            </div>
+            <div class="grid">
+                <p>Diferencia:</p>
+                <p x-text="total_product - total_expense - total_payment - total_credit - parseInt(cash) - parseInt(card)"></p>
+            </div>
         </div>
 
         <button type="submit">Submit</button>
