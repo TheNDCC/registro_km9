@@ -59,6 +59,11 @@
                 <input type="number" step="0.01" name="amount-{{item}}-payments" placeholder="Monto" required>
             </div>
         {% endfor %}
+        <div class="grid">
+            <h1>Formas de Pago</h1>
+            <input type="number" name="cash" placeholder="Efectivo" required>
+            <input type="number" name="card" placeholder="Tarjeta" required>
+        </div>
 
         <button type="submit">Submit</button>
     </form>
