@@ -9,7 +9,7 @@
             <div class="grid">
                 <b>Empleado</b>
                 {% for i in days %}
-                    <input type="date" name="date-{{i}}">
+                    <input type="date" name="date-{{i}}" required>
                 {% endfor %}
             </div>
             {% for employee in employees %}
@@ -28,30 +28,6 @@
         </article>
         <button type="submit">Submit</button>
     </form>
-    {% if commissions %}
-    <h3>Comisiones creadas</h3>
-    <table>
-        <thead>
-        <tr>
-            <th>Empleado</th>
-            <th>Fecha</th>
-            <th>Sucursal</th>
-            <th>Cantidad ventas</th>
-            <th>Tarifa</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for c in commissions %}
-            <tr>
-            <td>{{ c.employee.get_full_name }}</td>
-            <td>{{ c.date }}</td>
-            <td>{{ c.subsidiary.name }}</td>
-            <td>{{ c.sale_quantity }}</td>
-            <td>{{ c.commission_rate }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
+    
 
 {% endblock %}

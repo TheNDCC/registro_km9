@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Panel de Empleados</h1>
+
+    <h3>Comisiones creadas</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Empleado</th>
+            <th>Fecha</th>
+            <th>Sucursal</th>
+            <th>Cantidad ventas</th>
+            <th>Mínimo para comisionar</th>
+            <th>Tarifa</th>
+            <th>Total Comisión</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for c in commissions %}
+            <tr>
+            <td>{{ c.employee }}</td>
+            <td>{{ c.date }}</td>
+            <td>{{ c.subsidiary.name }}</td>
+            <td>{{ c.sale_quantity }}</td>
+            <td>{{ minimum_sales_for_commission}}</td>
+            <td>{{ c.commission_rate }}</td>
+            <td>{{ c.total_commission }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

@@ -66,16 +66,19 @@ def employee_dashboard(request):
         
         for i in range(employees_days):
             date = datetime.datetime.strptime(request.POST.get(f"date-{i}"), "%Y-%m-%d")
-            sales = Sale.objects.filter(date=date, product__name__in=products_commission)
-            sale_quantity = sales.aggregate(total=models.Sum('quantity'))['total']
-            
-            if sale_quantity is None:
-                sale_quantity=0
             for employee in employees:
                 subsidiary = request.POST.get(f"subsidiary-{employee.id}-{i}")
                 if subsidiary != "0":
                     subsidiary = Subsidiary.objects.get(name=subsidiary)
-                    Commission.objects.create(employee=employee, date=date,  subsidiary=subsidiary, commission_rate=commission_rate, sale_quantity=sale_quantity)
+                    sales = Sale.objects.filter(date=date, product__name__in=products_commission, product__category__subsidiary=subsidiary)
+                    sale_quantity = sales.aggregate(total=models.Sum('quantity'))['total']
+                    
+                    if sale_quantity is None:
+                        sale_quantity=0
+                    total = (sale_quantity - minimum_sales_for_commission) * commission_rate
+                    if total < 0:
+                        total = 0
+                    Commission.objects.create(employee=employee, date=date,  subsidiary=subsidiary, commission_rate=commission_rate, sale_quantity=sale_quantity, total_commission=total)
     context = {
         "employees": employees,
         "date": datetime.date.today(),
@@ -84,3 +87,15 @@ def employee_dashboard(request):
     }
     
     return render(request, 'employee_dashboard.html', context)
+
+def employee_report(request, employees_id=1, date_from=datetime.date.today(), date_to=datetime.date.today()):
+    employee = Employee.objects.get(id=employees_id)
+    if isinstance(date_from, str):
+        date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d")
+    if isinstance(date_to, str):
+        date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d")
+    context = {
+        "commissions": Commission.objects.filter(employee=employee, date__range=(date_from, date_to)),
+        "minimum_sales_for_commission": minimum_sales_for_commission
+    }
+    return render(request, "employee_report.html", context)
