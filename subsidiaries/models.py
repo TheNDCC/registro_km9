@@ -12,6 +12,7 @@ class CashFlow(models.Model):
     date = models.DateField()
     cash = models.DecimalField(max_digits=10, decimal_places=2)
     card = models.DecimalField(max_digits=10, decimal_places=2)
+    diff = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     subsidiary = models.ForeignKey(Subsidiary, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

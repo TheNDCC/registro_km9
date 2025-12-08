@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Panel de Empleados</h1>
+    <p>Bienvenido al panel de empleados. Aquí puedes ver y gestionar la información relacionada con los empleados de la empresa.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <article>
+            <div class="grid">
+                <b>Empleado</b>
+                {% for i in days %}
+                    <input type="date" name="date-{{i}}">
+                {% endfor %}
+            </div>
+            {% for employee in employees %}
+                <div class="grid">
+                    <p>{{ employee.full_name }}</p>
+                    {% for i in days %}
+                        <select x-model= "subsidiary" id="subsidiary" name="subsidiary-{{employee.id}}-{{i}}" required>
+                            <option value="0" select >DESCANSO</option>
+                            {% for subsidiary in subsidiaries %}
+                                <option value="{{ subsidiary.name }}">{{ subsidiary.name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </article>
+        <button type="submit">Submit</button>
+    </form>
+    {% if commissions %}
+    <h3>Comisiones creadas</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Empleado</th>
+            <th>Fecha</th>
+            <th>Sucursal</th>
+            <th>Cantidad ventas</th>
+            <th>Tarifa</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for c in commissions %}
+            <tr>
+            <td>{{ c.employee.get_full_name }}</td>
+            <td>{{ c.date }}</td>
+            <td>{{ c.subsidiary.name }}</td>
+            <td>{{ c.sale_quantity }}</td>
+            <td>{{ c.commission_rate }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+{% endblock %}

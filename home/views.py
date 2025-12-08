@@ -2,11 +2,17 @@ from django.shortcuts import render
 from sales.models import Product, Sale
 from expenses.models import Expense, Credit, Payment
 from subsidiaries.models import Subsidiary, CashFlow
+from employees.models import Employee, Commission
 import datetime
+from django.db import models
 
-expenses_quantity = 20
+expenses_quantity = 10
 credits_quantity = 5
 payments_quantity = 5
+employees_days = 7
+commission_rate = 3
+minimum_sales_for_commission = 100
+products_commission= ["Pollo Asado", "Pollo Rostizado"]
 
 def home(request):
     products = Product.objects.all()
@@ -38,7 +44,8 @@ def home(request):
                 Payment.objects.create(description=e,amount=m,subsidiary=subsidiary,date=date)
         cash = int(request.POST.get("cash"))
         card = int(request.POST.get("card"))
-        CashFlow.objects.create(date=date, cash=cash, card=card, subsidiary=subsidiary)
+        diff = int(request.POST.get("diff"))
+        CashFlow.objects.create(date=date, cash=cash, card=card, diff=diff, subsidiary=subsidiary)
 
 
     context = {
@@ -52,3 +59,28 @@ def home(request):
     }
     
     return render(request, 'home.html', context)
+
+def employee_dashboard(request):
+    employees = Employee.objects.all()
+    if request.method == "POST":
+        
+        for i in range(employees_days):
+            date = datetime.datetime.strptime(request.POST.get(f"date-{i}"), "%Y-%m-%d")
+            sales = Sale.objects.filter(date=date, product__name__in=products_commission)
+            sale_quantity = sales.aggregate(total=models.Sum('quantity'))['total']
+            
+            if sale_quantity is None:
+                sale_quantity=0
+            for employee in employees:
+                subsidiary = request.POST.get(f"subsidiary-{employee.id}-{i}")
+                if subsidiary != "0":
+                    subsidiary = Subsidiary.objects.get(name=subsidiary)
+                    Commission.objects.create(employee=employee, date=date,  subsidiary=subsidiary, commission_rate=commission_rate, sale_quantity=sale_quantity)
+    context = {
+        "employees": employees,
+        "date": datetime.date.today(),
+        "days": range(employees_days),
+        "subsidiaries": Subsidiary.objects.all(),
+    }
+    
+    return render(request, 'employee_dashboard.html', context)

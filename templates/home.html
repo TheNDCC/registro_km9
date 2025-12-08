@@ -100,7 +100,7 @@
             </div>
             <div class="grid">
                 <p>Diferencia:</p>
-                <p x-text="total_product - total_expense - total_payment - total_credit - parseInt(cash) - parseInt(card)"></p>
+                <input name="diff" :value="total_product - total_expense - total_payment - total_credit - parseInt(cash) - parseInt(card)" readonly>
             </div>
         </div>
 
