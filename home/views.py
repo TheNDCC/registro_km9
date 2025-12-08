@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from sales.models import Product, Sale
 from expenses.models import Expense, Credit, Payment
 from subsidiaries.models import Subsidiary, CashFlow
@@ -89,13 +89,53 @@ def employee_dashboard(request):
     return render(request, 'employee_dashboard.html', context)
 
 def employee_report(request, employees_id=1, date_from=datetime.date.today(), date_to=datetime.date.today()):
+    if request.method == "POST":
+        employee = request.POST.get("employee")
+        date_from = request.POST.get("from")
+        date_to = request.POST.get("to")
+        return redirect("employee_report",employees_id=employee,date_from=date_from, date_to=date_to)
     employee = Employee.objects.get(id=employees_id)
     if isinstance(date_from, str):
         date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d")
     if isinstance(date_to, str):
         date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d")
     context = {
+        "employees": Employee.objects.all(),
         "commissions": Commission.objects.filter(employee=employee, date__range=(date_from, date_to)),
         "minimum_sales_for_commission": minimum_sales_for_commission
     }
     return render(request, "employee_report.html", context)
+
+def credit_report(request, desc="", date_from=datetime.date.today(), date_to=datetime.date.today()):
+    if request.method == "POST":
+        desc = request.POST.get("desc", "")
+        date_from = request.POST.get("from")
+        date_to = request.POST.get("to")
+        new = request.POST.get("new", "")
+        if new != "":
+            d_from = datetime.datetime.strptime(date_from, "%Y-%m-%d")
+            d_to = datetime.datetime.strptime(date_to, "%Y-%m-%d")
+            credits = Credit.objects.filter(description__icontains=desc, date__range=(d_from, d_to))
+            for credit in credits:
+                credit.description = new
+                credit.save()
+            desc = new
+        return redirect("credit_report",desc=desc,date_from=date_from, date_to=date_to)
+    if isinstance(date_from, str):
+        date_from = datetime.datetime.strptime(date_from, "%Y-%m-%d")
+    if isinstance(date_to, str):
+        date_to = datetime.datetime.strptime(date_to, "%Y-%m-%d")
+    credits = None
+    desc = desc.strip()
+    if desc == "":
+        credits = Credit.objects.filter(date__range=(date_from, date_to))
+        desc = " "
+    else:
+        credits = Credit.objects.filter(description__icontains=desc, date__range=(date_from, date_to))
+    context = {
+        "credits": credits,
+        "desc": desc,
+        "date_from": date_from,
+        "date_to": date_to
+    }
+    return render(request, "credit_report.html", context)

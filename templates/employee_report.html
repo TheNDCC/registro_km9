@@ -1,6 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>Panel de Empleados</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <select name="employee" required>
+            {% for employee in employees %}
+                <option value="{{ employee.id }}">{{ employee.full_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="from">
+        <input type="date" name="to">
+        <button type="submit">Submit</button>
+    </form>
 
     <h3>Comisiones creadas</h3>
     <table>

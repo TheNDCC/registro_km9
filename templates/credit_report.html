@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Credit Report</h1>
+    <p>This is a placeholder for the credit report content.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="desc" value="{{desc}}">
+        <input type="date" name="from" value="{{date_from|date:"Y-m-d"}}" required>
+        <input type="date" name="to" value="{{date_to|date:"Y-m-d"}}" required>
+        <input type="text" name="new" value="">
+        <button type="submit">Submit</button>
+    </form>
+    <table x-data="{ total: 0 }">
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Monto</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody x-data="{
+            {% for credit in credits %}
+            credit{{credit.id}}:{{credit.amount}},
+            {% endfor %}
+        }">
+            {% for credit in credits %}
+                <tr>
+                    <td>{{ credit.description }}</td>
+                    <td x-text="credit{{ credit.id }}"></td>
+                    <td>{{ credit.date }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td><strong>Total</strong></td>
+                <td colspan="2" x-text="total={% for credit in credits %} credit{{credit.id}} + {% endfor %} 0;total"></td>
+            </tr>
+        </tbody>
+            
+    </table>
+{% endblock %}
