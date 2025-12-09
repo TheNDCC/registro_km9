@@ -14,10 +14,39 @@
     </style>
     <title>Document</title>
 </head>
-<body>
+<body x-data="{modal:true}">
     {% include 'nav.html' %}
     {% block content %}
     {% endblock %}
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    <dialog x-bind:open="modal" x-show="modal">
+        <article @click.outside="modal=false">
+            <h2>Confirmar cambios</h2>
+            <p>¿Deseas guardar los cambios realizados en esta comanda?</p>
+            <footer>
+                <button class="secondary" @click.prevent="modal = false">
+                    Cancelar
+                </button>
+                <button>Confirmar</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <style>
+        dialog[open] article {
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
 </body>
 </html>
